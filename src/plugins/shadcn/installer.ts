@@ -54,14 +54,18 @@ export class ShadcnPluginInstaller extends BasePluginInstaller {
 
       // Install Tailwind
       const packageManager = detectPackageManager();
-      this.spinner.start(chalk.blue("Installing Tailwind CSS..."));
+      this.spinner.start(
+        chalk.blue("Installing Tailwind CSS and dependencies..."),
+      );
 
       try {
         execSync(
-          `${packageManager} add -D tailwindcss@latest postcss autoprefixer`,
+          `${packageManager} add -D tailwindcss@latest @tailwindcss/postcss@latest postcss autoprefixer`,
           { stdio: "ignore" },
         );
-        this.spinner.succeed(chalk.green("✅ Installed Tailwind CSS"));
+        this.spinner.succeed(
+          chalk.green("✅ Installed Tailwind CSS and dependencies"),
+        );
       } catch (error) {
         this.spinner.fail(chalk.red("❌ Failed to install Tailwind CSS"));
         return false;
@@ -88,19 +92,26 @@ export class ShadcnPluginInstaller extends BasePluginInstaller {
 
       if (upgradeNow) {
         const packageManager = detectPackageManager();
-        this.spinner.start(chalk.blue("Upgrading Tailwind CSS..."));
+        this.spinner.start(
+          chalk.blue("Upgrading Tailwind CSS and dependencies..."),
+        );
 
         try {
-          execSync(`${packageManager} add -D tailwindcss@latest`, {
-            stdio: "ignore",
-          });
-          this.spinner.succeed(chalk.green("✅ Upgraded Tailwind CSS to v4"));
+          execSync(
+            `${packageManager} add -D tailwindcss@latest @tailwindcss/postcss@latest`,
+            { stdio: "ignore" },
+          );
+          this.spinner.succeed(
+            chalk.green("✅ Upgraded Tailwind CSS and dependencies to v4"),
+          );
         } catch (error) {
           this.spinner.fail(chalk.red("❌ Failed to upgrade Tailwind CSS"));
           console.log(
             chalk.yellow(
               "\nYou can manually upgrade later using:\n" +
-                chalk.white(`${packageManager} add -D tailwindcss@latest`),
+                chalk.white(
+                  `${packageManager} add -D tailwindcss@latest @tailwindcss/postcss@latest`,
+                ),
             ),
           );
         }
@@ -109,7 +120,7 @@ export class ShadcnPluginInstaller extends BasePluginInstaller {
           chalk.dim(
             "\nYou can manually upgrade later using:\n" +
               chalk.white(
-                `${detectPackageManager()} add -D tailwindcss@latest`,
+                `${detectPackageManager()} add -D tailwindcss@latest @tailwindcss/postcss@latest`,
               ),
           ),
         );
