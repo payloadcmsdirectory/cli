@@ -1,5 +1,6 @@
 import { execSync } from "child_process";
 import path from "path";
+import chalk from "chalk";
 import fs from "fs-extra";
 import inquirer from "inquirer";
 
@@ -37,12 +38,12 @@ export class ShadcnPluginInstaller extends BasePluginInstaller {
     const { version: tailwindVersion } = await checkTailwindVersion();
 
     if (tailwindVersion === 0) {
-      this.spinner.warn("Tailwind CSS not detected");
+      this.spinner.warn(chalk.yellow("⚠️ Tailwind CSS not detected"));
       const { installTailwind } = await inquirer.prompt([
         {
           type: "confirm",
           name: "installTailwind",
-          message: "Would you like to install Tailwind CSS?",
+          message: chalk.cyan("Would you like to install Tailwind CSS?"),
           default: true,
         },
       ]);
@@ -53,16 +54,16 @@ export class ShadcnPluginInstaller extends BasePluginInstaller {
 
       // Install Tailwind
       const packageManager = detectPackageManager();
-      this.spinner.start("Installing Tailwind CSS...");
+      this.spinner.start(chalk.blue("Installing Tailwind CSS..."));
 
       try {
         execSync(
           `${packageManager} add -D tailwindcss@latest postcss autoprefixer`,
           { stdio: "ignore" },
         );
-        this.spinner.succeed("Installed Tailwind CSS");
+        this.spinner.succeed(chalk.green("✅ Installed Tailwind CSS"));
       } catch (error) {
-        this.spinner.fail("Failed to install Tailwind CSS");
+        this.spinner.fail(chalk.red("❌ Failed to install Tailwind CSS"));
         return false;
       }
     }
@@ -71,7 +72,9 @@ export class ShadcnPluginInstaller extends BasePluginInstaller {
   }
 
   async install(options: PluginOptions): Promise<void> {
-    this.spinner.start("Installing ShadcnUI plugin...");
+    console.log(
+      "\n" + chalk.blue.bold("🎨 Installing ShadcnUI plugin...") + "\n",
+    );
 
     try {
       // Get CSS file path first
@@ -80,7 +83,13 @@ export class ShadcnPluginInstaller extends BasePluginInstaller {
           type: "input",
           name: "cssPath",
           message:
-            "Enter the path to your main CSS file (or leave as is to create one):",
+            chalk.cyan("Enter the path to your main CSS file:") +
+            "\n" +
+            chalk.dim(
+              "(Press Enter to use default: src/app/(payload)/custom.scss)",
+            ) +
+            "\n" +
+            chalk.cyan("➜ "),
           default: "src/app/(payload)/custom.scss",
         },
       ]);
@@ -93,32 +102,59 @@ export class ShadcnPluginInstaller extends BasePluginInstaller {
       }
 
       // Show configuration summary
-      console.log("\n===== Configuration Files =====");
+      console.log("\n" + chalk.yellow.bold("📁 Configuration Files") + "\n");
+
       const tailwindPath =
-        (await findConfigFile(["tailwind.config.ts", "tailwind.config.js"])) ||
-        "tailwind.config.js";
+        (await findConfigFile([
+          "tailwind.config.ts",
+          "tailwind.config.js",
+          "tailwind.config.mjs",
+          "tailwind.config.cjs",
+        ])) || "tailwind.config.js";
+
       const postCssPath =
-        (await findConfigFile(["postcss.config.js", "postcss.config.ts"])) ||
-        "postcss.config.js";
+        (await findConfigFile([
+          "postcss.config.js",
+          "postcss.config.ts",
+          "postcss.config.mjs",
+          "postcss.config.cjs",
+        ])) || "postcss.config.js";
+
       const payloadConfigPath =
         (await findConfigFile([
           "src/payload.config.ts",
           "payload.config.ts",
           "src/payload.config.js",
           "payload.config.js",
+          "src/payload.config.mjs",
+          "payload.config.mjs",
         ])) || "src/payload.config.ts";
 
-      console.log("\nConfiguration files to create/modify:");
-      console.log(`- Tailwind config: ${path.resolve(tailwindPath)}`);
-      console.log(`- PostCSS config: ${path.resolve(postCssPath)}`);
-      console.log(`- CSS file: ${path.resolve(this.cssPath)}`);
-      console.log(`- Payload config: ${path.resolve(payloadConfigPath)}`);
+      console.log(
+        chalk.dim("The following files will be created or modified:"),
+      );
+      console.log(
+        chalk.cyan("• Tailwind config: ") +
+          chalk.white(path.resolve(tailwindPath)),
+      );
+      console.log(
+        chalk.cyan("• PostCSS config:  ") +
+          chalk.white(path.resolve(postCssPath)),
+      );
+      console.log(
+        chalk.cyan("• CSS file:       ") +
+          chalk.white(path.resolve(this.cssPath)),
+      );
+      console.log(
+        chalk.cyan("• Payload config: ") +
+          chalk.white(path.resolve(payloadConfigPath)),
+      );
 
       const { confirm } = await inquirer.prompt([
         {
           type: "confirm",
           name: "confirm",
-          message: "Are these paths correct?",
+          message: chalk.green("\nAre these paths correct?"),
           default: true,
         },
       ]);
@@ -128,7 +164,14 @@ export class ShadcnPluginInstaller extends BasePluginInstaller {
           {
             type: "input",
             name: "customPayloadConfig",
-            message: "Enter the path to your Payload config file:",
+            message:
+              chalk.cyan("Enter the path to your Payload config file:") +
+              "\n" +
+              chalk.dim(
+                "(Press Enter to use default: " + payloadConfigPath + ")",
+              ) +
+              "\n" +
+              chalk.cyan("➜ "),
             default: payloadConfigPath,
           },
         ]);
@@ -152,11 +195,20 @@ export class ShadcnPluginInstaller extends BasePluginInstaller {
       // Update Payload config
       await this.updatePayloadConfigFile();
 
-      this.spinner.succeed("Successfully installed ShadcnUI plugin");
+      this.spinner.succeed(
+        chalk.green("✅ Successfully installed ShadcnUI plugin"),
+      );
+
+      console.log("\n" + chalk.blue.bold("Next steps:"));
+      console.log(chalk.dim("1. Start your development server"));
+      console.log(
+        chalk.dim("2. Check your CSS file at: ") + chalk.cyan(this.cssPath),
+      );
+      console.log(chalk.dim("3. Verify Tailwind and PostCSS configurations"));
     } catch (error) {
-      this.spinner.fail("Failed to install ShadcnUI plugin");
+      this.spinner.fail(chalk.red("❌ Failed to install ShadcnUI plugin"));
       if (error instanceof Error) {
-        logger.error(`Error: ${error.message}`);
+        logger.error(chalk.red(`Error: ${error.message}`));
       }
       throw error;
     }
@@ -166,6 +218,8 @@ export class ShadcnPluginInstaller extends BasePluginInstaller {
     const configPath = await findConfigFile([
       "tailwind.config.ts",
       "tailwind.config.js",
+      "tailwind.config.mjs",
+      "tailwind.config.cjs",
     ]);
 
     if (!configPath) {
@@ -203,6 +257,8 @@ export class ShadcnPluginInstaller extends BasePluginInstaller {
     const configPath = await findConfigFile([
       "postcss.config.js",
       "postcss.config.ts",
+      "postcss.config.mjs",
+      "postcss.config.cjs",
     ]);
 
     // Always write the new config, regardless of whether it exists
