@@ -4,7 +4,7 @@ function getShadcnContent() {
   return [
     './src/app/**/*.{js,ts,jsx,tsx}',
     './src/components/**/*.{js,ts,jsx,tsx}',
-    './node_modules/@payloadcms/plugin-shadcn/dist/**/*.{js,ts,jsx,tsx}',
+    './node_modules/@payloadcmsdirectory/shadcn-ui/dist/**/*.{js,ts,jsx,tsx}',
   ];
 }`,
 
@@ -17,7 +17,7 @@ function getShadcnContent() {
 export default config`,
 
   CSS_IMPORT: `
-@import '@payloadcms/plugin-shadcn/dist/globals.css';
+@import '@payloadcmsdirectory/shadcn-ui/dist/styles/globals.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
