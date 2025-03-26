@@ -17,7 +17,7 @@ function getShadcnContent() {
 export default config`,
 
   CSS_IMPORT: `
-@import '@payloadcmsdirectory/shadcn-ui/dist/styles/globals.css';
+@import '@payloadcmsdirectory/shadcn-ui/globals.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
