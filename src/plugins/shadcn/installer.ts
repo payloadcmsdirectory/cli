@@ -66,6 +66,54 @@ export class ShadcnPluginInstaller extends BasePluginInstaller {
         this.spinner.fail(chalk.red("❌ Failed to install Tailwind CSS"));
         return false;
       }
+    } else if (tailwindVersion < 4) {
+      this.spinner.warn(
+        chalk.yellow("\n⚠️ Tailwind CSS v" + tailwindVersion + " detected"),
+      );
+      console.log(
+        chalk.yellow(
+          "The ShadcnUI plugin works best with Tailwind CSS v4 or later.\n" +
+            "We recommend upgrading to the latest version for the best experience.",
+        ),
+      );
+
+      const { upgradeNow } = await inquirer.prompt([
+        {
+          type: "confirm",
+          name: "upgradeNow",
+          message: chalk.cyan("Would you like to upgrade Tailwind CSS to v4?"),
+          default: true,
+        },
+      ]);
+
+      if (upgradeNow) {
+        const packageManager = detectPackageManager();
+        this.spinner.start(chalk.blue("Upgrading Tailwind CSS..."));
+
+        try {
+          execSync(`${packageManager} add -D tailwindcss@latest`, {
+            stdio: "ignore",
+          });
+          this.spinner.succeed(chalk.green("✅ Upgraded Tailwind CSS to v4"));
+        } catch (error) {
+          this.spinner.fail(chalk.red("❌ Failed to upgrade Tailwind CSS"));
+          console.log(
+            chalk.yellow(
+              "\nYou can manually upgrade later using:\n" +
+                chalk.white(`${packageManager} add -D tailwindcss@latest`),
+            ),
+          );
+        }
+      } else {
+        console.log(
+          chalk.dim(
+            "\nYou can manually upgrade later using:\n" +
+              chalk.white(
+                `${detectPackageManager()} add -D tailwindcss@latest`,
+              ),
+          ),
+        );
+      }
     }
 
     return true;
