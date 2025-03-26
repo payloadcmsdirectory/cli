@@ -1,6 +1,6 @@
 {
   "name": "@payloadcmsdirectory/cli",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "CLI tool for PayloadCMS plugins",
   "private": false,
   "bin": "./bin/index.js",
